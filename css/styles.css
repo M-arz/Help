@@ -1,0 +1,312 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary: #059669;
+    --primary-dark: #047857;
+    --bg-color: #f4f5f7;
+    --card-bg: #ffffff;
+    --text-main: #111827;
+    --text-muted: #4b5563;
+    --border-radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.topbar {
+    background: linear-gradient(135deg, #064e3b 0%, #059669 50%, #10b981 100%);
+    color: white;
+    padding: 2rem 2.5rem;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+/* Estilos del Hero Banner acoplado */
+.hero-banner {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    overflow: hidden;
+}
+
+.hero-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.hero-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(6, 78, 59, 0.55); /* Capa oscura semitransparente para mejor legibilidad */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 1rem;
+}
+
+.hero-content h2 {
+    color: white;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.container {
+    padding: 2rem;
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
+    flex: 1;
+}
+
+.metrics-header-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.metrics-header-toggle h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
+
+.btn-toggle {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-toggle:hover {
+    background: #ecfdf5;
+}
+
+.metrics-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+    transition: all 0.3s ease-in-out;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.metric-pill {
+    background: var(--card-bg);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.metric-info span {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.metric-info strong {
+    font-size: 1.5rem;
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.metric-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #ecfdf5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.metric-icon img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+.panel {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #e5e7eb;
+}
+
+.panel h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+input, select {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+    background: #fff;
+}
+
+input:focus, select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+}
+
+button[type="submit"] {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+button[type="submit"]:hover { background: var(--primary-dark); }
+
+.filters-panel {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filters-panel input { flex: 1; min-width: 220px; }
+
+#contadorTickets {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.mensaje {
+    margin-top: 0.75rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #dc2626;
+}
+
+.table-container {
+    overflow-x: auto;
+    padding: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th, td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.9rem;
+}
+
+th {
+    background: #f9fafb;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+tr:hover { background: #f9fafb; }
+
+.btn-action {
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    margin-right: 0.25rem;
+}
+
+.btn-edit { background: #fef3c7; color: #b45309; }
+.btn-edit:hover { background: #fde68a; }
+
+.btn-delete { background: #fee2e2; color: #b91c1c; }
+.btn-delete:hover { background: #fecaca; }
+
+.btn-status { background: #ecfdf5; color: #047857; }
+.btn-status:hover { background: #d1fae5; }
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-prioridad-Baja { background: #f3f4f6; color: #374151; }
+.badge-prioridad-Media { background: #e0f2fe; color: #0369a1; }
+.badge-prioridad-Alta { background: #fef3c7; color: #b45309; }
+.badge-prioridad-Urgente { background: #fee2e2; color: #b91c1c; }
+
+.badge-estado-Abierto { background: #e0e7ff; color: #3730a3; }
+.badge-estado-En.Proceso { background: #fef9c3; color: #854d0e; }
+.badge-estado-Resuelto { background: #dcfce7; color: #166534; }
+
+.footer {
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: auto;
+}

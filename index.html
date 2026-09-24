@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpDesk • Mesa de Ayuda</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="topbar">
+        <h1>HelpDesk • Sistema de Soporte</h1>
+    </header>
+
+    <!-- Hero Banner sin espacios respecto al header -->
+    <section class="hero-banner">
+        <img src="img/banner.jpg" alt="Banner HelpDesk">
+        <div class="hero-content">
+            <h2>Atendemos tus necesidades tecnológicas</h2>
+        </div>
+    </section>
+
+    <main class="container">
+        <!-- Control para plegar/desplegar métricas -->
+        <div class="metrics-header-toggle">
+            <h3>Panel de Resumen</h3>
+            <button id="btnToggleMetrics" class="btn-toggle">Ocultar Métricas 🔼</button>
+        </div>
+
+        <!-- Barra de Métricas -->
+        <section class="metrics-bar" id="statsHelpdesk"></section>
+
+        <!-- Formulario para Crear / Editar Ticket -->
+        <section class="panel">
+            <h2 id="formTitle">Nuevo Ticket de Soporte</h2>
+            <form id="formTicket">
+                <input type="hidden" id="ticketId">
+                <input id="cliente" type="text" placeholder="Nombre del cliente" required>
+                <select id="prioridad" required>
+                    <option value="">Seleccione prioridad</option>
+                    <option value="Baja">Baja</option>
+                    <option value="Media">Media</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Urgente">Urgente</option>
+                </select>
+                <select id="categoria" required>
+                    <option value="">Seleccione categoría</option>
+                    <option value="Hardware">Hardware</option>
+                    <option value="Software">Software</option>
+                    <option value="Redes">Redes</option>
+                    <option value="Acceso">Acceso</option>
+                </select>
+                <input id="descripcion" type="text" placeholder="Descripción breve del problema" required style="grid-column: span 2;">
+                <button type="submit" id="btnSubmit">Crear Ticket</button>
+            </form>
+            <p id="mensajeHelpdesk" class="mensaje"></p>
+        </section>
+
+        <!-- Filtros y Búsqueda -->
+        <section class="panel filters-panel">
+            <input id="buscarTicket" type="text" placeholder="Buscar por cliente o descripción...">
+            <select id="filtroPrioridad">
+                <option value="todos">Todas las prioridades</option>
+                <option value="Baja">Baja</option>
+                <option value="Media">Media</option>
+                <option value="Alta">Alta</option>
+                <option value="Urgente">Urgente</option>
+            </select>
+            <select id="filtroEstado">
+                <option value="todos">Todos los estados</option>
+                <option value="Abierto">Abierto</option>
+                <option value="En Proceso">En Proceso</option>
+                <option value="Resuelto">Resuelto</option>
+            </select>
+            <span id="contadorTickets">0 ticket(s)</span>
+        </section>
+
+        <!-- Control para plegar/desplegar la lista de tickets -->
+        <div class="metrics-header-toggle">
+            <h3>Listado de Tickets</h3>
+            <button id="btnToggleTable" class="btn-toggle">Ocultar Tickets 🔼</button>
+        </div>
+
+        <!-- Tabla Dinámica de Tickets -->
+        <section class="panel table-container" id="sectionTable">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Prioridad</th>
+                        <th>Categoría</th>
+                        <th>Descripción</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaTickets"></tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- Footer Institucional -->
+    <footer class="footer">
+        <p>&copy; 2026 HelpDesk Corp. Todos los derechos reservados. • Sistema de Gestión de Soporte Técnico</p>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
