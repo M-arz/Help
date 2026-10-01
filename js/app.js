@@ -1,107 +1,67 @@
-let tickets = JSON.parse(localStorage.getItem("helpdesk_tickets")) || [
-    { id: "101", cliente: "Ana María Gómez", prioridad: "Alta", categoria: "Hardware", descripcion: "Falla en el teclado de la workstation principal", estado: "Abierto" },
-    { id: "102", cliente: "Carlos Pérez", prioridad: "Media", categoria: "Software", descripcion: "Error al sincronizar la base de datos local", estado: "En Proceso" },
-    { id: "103", cliente: "Sofía Ruiz", prioridad: "Urgente", categoria: "Redes", descripcion: "Sin conexión a internet en el segundo piso", estado: "Abierto" }
-];
+// js/app.js
 
+let tickets = [];
 let editandoId = null;
 
+// Elementos del DOM
 const form = document.getElementById("formTicket");
 const tabla = document.getElementById("tablaTickets");
+const tablaHistorial = document.getElementById("tablaHistorial");
 const stats = document.getElementById("statsHelpdesk");
 const mensaje = document.getElementById("mensajeHelpdesk");
+const mensajeCarga = document.getElementById("mensajeCarga");
 const buscarTicket = document.getElementById("buscarTicket");
 const filtroPrioridad = document.getElementById("filtroPrioridad");
 const filtroEstado = document.getElementById("filtroEstado");
 const contadorTickets = document.getElementById("contadorTickets");
 const formTitle = document.getElementById("formTitle");
 const btnSubmit = document.getElementById("btnSubmit");
-const btnToggleMetrics = document.getElementById("btnToggleMetrics");
+const btnExportarPDF = document.getElementById("btnExportarPDF");
 
-// Nuevas constantes para ocultar/mostrar la tabla de tickets
-const btnToggleTable = document.getElementById("btnToggleTable");
-const sectionTable = document.getElementById("sectionTable");
-
-function guardarEnStorage() {
-    localStorage.setItem("helpdesk_tickets", JSON.stringify(tickets));
-}
-
-// Lógica para replegar / desplegar métricas
-if (btnToggleMetrics) {
-    btnToggleMetrics.addEventListener("click", () => {
-        stats.classList.toggle("hidden");
-        if (stats.classList.contains("hidden")) {
-            btnToggleMetrics.textContent = "Mostrar Métricas ";
-        } else {
-            btnToggleMetrics.textContent = "Ocultar Métricas ";
-        }
+// Formateador de Fechas
+function formatearFecha(fechaStr) {
+    if (!fechaStr) return '—';
+    const f = new Date(fechaStr);
+    return f.toLocaleString('es-CO', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: true
     });
 }
 
-// Lógica para replegar / desplegar la tabla de tickets
-if (btnToggleTable) {
-    btnToggleTable.addEventListener("click", () => {
-        sectionTable.classList.toggle("hidden");
-        if (sectionTable.classList.contains("hidden")) {
-            btnToggleTable.textContent = "Mostrar Tickets ";
-        } else {
-            btnToggleTable.textContent = "Ocultar Tickets ";
-        }
-    });
+function mostrarCargando() {
+    if (!mensajeCarga) return;
+    mensajeCarga.classList.remove("hidden");
+    mensajeCarga.textContent = "⏳ Conectando con la base de datos...";
+    mensajeCarga.className = "mensaje-api loading";
 }
 
-function calcularMetricasTickets(listaActual) {
-    const total = listaActual.length;
-    const abiertos = listaActual.filter(t => t.estado === "Abierto").length;
-    const enProceso = listaActual.filter(t => t.estado === "En Proceso").length;
-    const resueltos = listaActual.filter(t => t.estado === "Resuelto").length;
-
-    return { total, abiertos, enProceso, resueltos };
+function mostrarError(msg) {
+    if (!mensajeCarga) return;
+    mensajeCarga.classList.remove("hidden");
+    mensajeCarga.textContent = `❌ ${msg}`;
+    mensajeCarga.className = "mensaje-api error";
 }
 
-function actualizarDashboard(listaActual) {
-    const m = calcularMetricasTickets(listaActual);
-    
-    stats.innerHTML = `
-        <div class="metric-pill">
-            <div class="metric-info">
-                <span>Total Tickets</span>
-                <strong>${m.total}</strong>
-            </div>
-            <div class="metric-icon">
-                <img src="img/ticket.png" alt="Total">
-            </div>
-        </div>
-        <div class="metric-pill">
-            <div class="metric-info">
-                <span>Abiertos</span>
-                <strong>${m.abiertos}</strong>
-            </div>
-            <div class="metric-icon">
-                <img src="img/abiertos.png" alt="Abiertos">
-            </div>
-        </div>
-        <div class="metric-pill">
-            <div class="metric-info">
-                <span>En Proceso</span>
-                <strong>${m.enProceso}</strong>
-            </div>
-            <div class="metric-icon">
-                <img src="img/carga.png" alt="En Proceso">
-            </div>
-        </div>
-        <div class="metric-pill">
-            <div class="metric-info">
-                <span>Resueltos</span>
-                <strong>${m.resueltos}</strong>
-            </div>
-            <div class="metric-icon">
-                <img src="img/ticketresuelto.png" alt="Resueltos">
-            </div>
-        </div>
-    `;
+function mostrarExito(msg) {
+    if (!mensajeCarga) return;
+    mensajeCarga.classList.remove("hidden");
+    mensajeCarga.textContent = `✅ ${msg}`;
+    mensajeCarga.className = "mensaje-api success";
 }
 
+// Cargar desde BD
+async function cargarTickets() {
+    try {
+        mostrarCargando();
+        tickets = await obtenerTickets();
+        mostrarExito(`Cargados ${tickets.length} tickets desde MySQL.`);
+        renderTickets();
+    } catch (error) {
+        mostrarError("Error al conectar con la base de datos MySQL.");
+    }
+}
+
+// Búsqueda y Filtros
 function obtenerFiltrados() {
     const texto = buscarTicket.value.trim().toLowerCase();
     const prioridad = filtroPrioridad.value;
@@ -116,62 +76,99 @@ function obtenerFiltrados() {
     });
 }
 
+// Renderizado de Tablas
 function renderTickets() {
     const listaActual = obtenerFiltrados();
     tabla.innerHTML = "";
     contadorTickets.textContent = `${listaActual.length} ticket(s)`;
 
     if (!listaActual.length) {
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 7;
-        td.textContent = "No se encontraron tickets registrados.";
-        td.style.textAlign = "center";
-        td.style.color = "var(--text-muted)";
-        tr.appendChild(td);
-        tabla.appendChild(tr);
-        actualizarDashboard(listaActual);
+        tabla.innerHTML = `<tr><td colspan="8" style="text-align:center;">No hay tickets registrados.</td></tr>`;
+    } else {
+        listaActual.forEach(t => {
+            const tr = document.createElement("tr");
+            tr.dataset.id = t.id;
+            const estadoClase = t.estado.replace(/\s+/g, '.');
+
+            tr.innerHTML = `
+                <td><strong>#${t.id}</strong></td>
+                <td>${t.cliente}</td>
+                <td><span class="badge badge-prioridad-${t.prioridad}">${t.prioridad}</span></td>
+                <td>${t.categoria}</td>
+                <td>${t.descripcion}</td>
+                <td><small>${formatearFecha(t.fecha_creacion)}</small></td>
+                <td><span class="badge badge-estado-${estadoClase}">${t.estado}</span></td>
+                <td>
+                    <button class="btn-action btn-status">Cambiar Estado</button>
+                    <button class="btn-action btn-edit">Editar</button>
+                    <button class="btn-action btn-delete">Eliminar</button>
+                </td>
+            `;
+            tabla.appendChild(tr);
+        });
+    }
+
+    renderHistorial();
+    actualizarDashboard(listaActual);
+}
+
+function renderHistorial() {
+    if (!tablaHistorial) return;
+    tablaHistorial.innerHTML = "";
+
+    if (!tickets.length) {
+        tablaHistorial.innerHTML = `<tr><td colspan="5" style="text-align:center;">Sin datos en el historial.</td></tr>`;
         return;
     }
 
-    listaActual.forEach(t => {
+    tickets.forEach(t => {
         const tr = document.createElement("tr");
-        tr.dataset.id = t.id;
+        const esResuelto = t.estado === "Resuelto";
 
         tr.innerHTML = `
             <td><strong>#${t.id}</strong></td>
             <td>${t.cliente}</td>
-            <td><span class="badge badge-prioridad-${t.prioridad}">${t.prioridad}</span></td>
-            <td>${t.categoria}</td>
-            <td>${t.descripcion}</td>
-            <td><span class="badge badge-estado-${t.estado.replace(" ", ".")}">${t.estado}</span></td>
-            <td>
-                <button class="btn-action btn-status" title="Cambiar Estado"> Cambiar Estado</button>
-                <button class="btn-action btn-edit" title="Editar Ticket"> Editar</button>
-                <button class="btn-action btn-delete" title="Eliminar Ticket"> Eliminar</button>
-            </td>
+            <td><span class="badge badge-estado-${t.estado.replace(/\s+/g, '.')}">${t.estado}</span></td>
+            <td><small>${formatearFecha(t.fecha_creacion)}</small></td>
+            <td>${esResuelto && t.fecha_salida ? `<strong>${formatearFecha(t.fecha_salida)}</strong>` : '<span style="color: gray;">— (Pendiente)</span>'}</td>
         `;
-        tabla.appendChild(tr);
+        tablaHistorial.appendChild(tr);
     });
-
-    actualizarDashboard(listaActual);
 }
 
-tabla.addEventListener("click", event => {
+function actualizarDashboard(listaActual) {
+    const total = listaActual.length;
+    const abiertos = listaActual.filter(t => t.estado === "Abierto").length;
+    const enProceso = listaActual.filter(t => t.estado === "En Proceso").length;
+    const resueltos = listaActual.filter(t => t.estado === "Resuelto").length;
+
+    stats.innerHTML = `
+        <div class="metric-pill"><div class="metric-info"><span>Total Tickets</span><strong>${total}</strong></div></div>
+        <div class="metric-pill"><div class="metric-info"><span>Abiertos</span><strong>${abiertos}</strong></div></div>
+        <div class="metric-pill"><div class="metric-info"><span>En Proceso</span><strong>${enProceso}</strong></div></div>
+        <div class="metric-pill"><div class="metric-info"><span>Resueltos</span><strong>${resueltos}</strong></div></div>
+    `;
+}
+
+// Eventos de Acciones (Eliminar, Editar, Cambiar Estado)
+tabla.addEventListener("click", async event => {
     const boton = event.target.closest("button");
     if (!boton) return;
 
-    const fila = event.target.closest("tr");
-    const id = fila.dataset.id;
+    const id = event.target.closest("tr").dataset.id;
+    const ticket = tickets.find(t => String(t.id) === String(id));
 
     if (boton.classList.contains("btn-delete")) {
-        if (confirm(`¿Estás seguro de eliminar el ticket #${id}?`)) {
-            tickets = tickets.filter(t => String(t.id) !== String(id));
-            guardarEnStorage();
-            renderTickets();
+        if (confirm(`¿Eliminar ticket #${id} de la base de datos?`)) {
+            try {
+                await eliminarTicket(id);
+                await cargarTickets();
+                mostrarExito(`Ticket #${id} eliminado.`);
+            } catch (error) {
+                mostrarError("No se pudo eliminar de la base de datos.");
+            }
         }
     } else if (boton.classList.contains("btn-edit")) {
-        const ticket = tickets.find(t => String(t.id) === String(id));
         if (ticket) {
             document.getElementById("ticketId").value = ticket.id;
             document.getElementById("cliente").value = ticket.cliente;
@@ -182,61 +179,75 @@ tabla.addEventListener("click", event => {
             editandoId = id;
             formTitle.textContent = `Editando Ticket #${id}`;
             btnSubmit.textContent = "Actualizar Ticket";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     } else if (boton.classList.contains("btn-status")) {
-        const ticket = tickets.find(t => String(t.id) === String(id));
-        if (ticket) {
-            if (ticket.estado === "Abierto") {
-                ticket.estado = "En Proceso";
-            } else if (ticket.estado === "En Proceso") {
-                ticket.estado = "Resuelto";
-            } else {
-                ticket.estado = "Abierto";
-            }
-            guardarEnStorage();
-            renderTickets();
+        let nuevoEstado = "Abierto";
+        if (ticket.estado === "Abierto") nuevoEstado = "En Proceso";
+        else if (ticket.estado === "En Proceso") nuevoEstado = "Resuelto";
+
+        try {
+            await cambiarEstadoTicket(id, nuevoEstado);
+            await cargarTickets();
+        } catch (error) {
+            mostrarError("No se pudo cambiar el estado en la base de datos.");
         }
     }
 });
 
-form.addEventListener("submit", event => {
+// Guardar o Actualizar
+form.addEventListener("submit", async event => {
     event.preventDefault();
     const cliente = document.getElementById("cliente").value.trim();
     const prioridad = document.getElementById("prioridad").value;
     const categoria = document.getElementById("categoria").value;
     const descripcion = document.getElementById("descripcion").value.trim();
 
-    if (!cliente || !prioridad || !categoria || !descripcion) {
-        mensaje.textContent = "Por favor complete todos los campos.";
-        return;
+    try {
+        if (editandoId !== null) {
+            await actualizarTicket(editandoId, { cliente, prioridad, categoria, descripcion });
+            mostrarExito(`Ticket #${editandoId} actualizado en MySQL.`);
+            editandoId = null;
+            formTitle.textContent = "Nuevo Ticket de Soporte";
+            btnSubmit.textContent = "Crear Ticket";
+        } else {
+            await crearTicket({ cliente, prioridad, categoria, descripcion });
+            mostrarExito("Nuevo ticket guardado en la base de datos.");
+        }
+        form.reset();
+        await cargarTickets();
+    } catch (error) {
+        mostrarError("Error al guardar en la base de datos.");
     }
-
-    if (editandoId !== null) {
-        tickets = tickets.map(t => String(t.id) === String(editandoId) ? { ...t, cliente, prioridad, categoria, descripcion } : t);
-        editandoId = null;
-        formTitle.textContent = "Nuevo Ticket de Soporte";
-        btnSubmit.textContent = "Crear Ticket";
-    } else {
-        const nuevoTicket = {
-            id: Date.now().toString().slice(-4),
-            cliente,
-            prioridad,
-            categoria,
-            descripcion,
-            estado: "Abierto"
-        };
-        tickets.push(nuevoTicket);
-    }
-
-    mensaje.textContent = "";
-    form.reset();
-    guardarEnStorage();
-    renderTickets();
 });
+
+// PDF Export
+function exportarHistorialPDF() {
+    if (!tickets.length) return alert("No hay datos para exportar.");
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("HelpDesk • Historial de Casos (MySQL)", 14, 20);
+
+    const columnas = ["ID", "Cliente", "Estado", "Creación", "Salida"];
+    const filas = tickets.map(t => [
+        `#${t.id}`,
+        t.cliente,
+        t.estado,
+        formatearFecha(t.fecha_creacion),
+        t.estado === "Resuelto" ? formatearFecha(t.fecha_salida) : "— (Pendiente)"
+    ]);
+
+    doc.autoTable({ head: [columnas], body: filas, startY: 30 });
+    doc.save(`HelpDesk_Reporte_BD.pdf`);
+}
+
+if (btnExportarPDF) btnExportarPDF.addEventListener("click", exportarHistorialPDF);
 
 buscarTicket.addEventListener("input", renderTickets);
 filtroPrioridad.addEventListener("change", renderTickets);
 filtroEstado.addEventListener("change", renderTickets);
 
-renderTickets();
+// Cargar datos al iniciar
+cargarTickets();

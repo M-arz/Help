@@ -11,7 +11,7 @@
         <h1>HelpDesk • Sistema de Soporte</h1>
     </header>
 
-    <!-- Hero Banner sin espacios respecto al header -->
+    <!-- Hero Banner -->
     <section class="hero-banner">
         <img src="img/banner.jpg" alt="Banner HelpDesk">
         <div class="hero-content">
@@ -20,10 +20,13 @@
     </section>
 
     <main class="container">
+        <!-- Indicador de Carga y Errores API -->
+        <div id="mensajeCarga" class="hidden"></div>
+
         <!-- Control para plegar/desplegar métricas -->
         <div class="metrics-header-toggle">
             <h3>Panel de Resumen</h3>
-            <button id="btnToggleMetrics" class="btn-toggle">Ocultar Métricas 🔼</button>
+            <button id="btnToggleMetrics" class="btn-toggle">Ocultar Métricas </button>
         </div>
 
         <!-- Barra de Métricas -->
@@ -77,7 +80,7 @@
         <!-- Control para plegar/desplegar la lista de tickets -->
         <div class="metrics-header-toggle">
             <h3>Listado de Tickets</h3>
-            <button id="btnToggleTable" class="btn-toggle">Ocultar Tickets 🔼</button>
+            <button id="btnToggleTable" class="btn-toggle">Ocultar Tickets </button>
         </div>
 
         <!-- Tabla Dinámica de Tickets -->
@@ -90,11 +93,37 @@
                         <th>Prioridad</th>
                         <th>Categoría</th>
                         <th>Descripción</th>
+                        <th>Fecha y Hora</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="tablaTickets"></tbody>
+            </table>
+        </section>
+
+        <!-- Control para plegar/desplegar el Historial de Salida -->
+        <div class="metrics-header-toggle" style="margin-top: 2rem;">
+            <h3>Historial de Casos (Cierre y Salida)</h3>
+            <div>
+                <button id="btnExportarPDF" class="btn-toggle" style="background-color: #e74c3c; color: #fff; margin-right: 0.5rem;">📄 Exportar Historial PDF</button>
+                <button id="btnToggleHistorial" class="btn-toggle">Ocultar Historial </button>
+            </div>
+        </div>
+
+        <!-- Tabla de Historial -->
+        <section class="panel table-container" id="sectionHistorial">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Estado Actual</th>
+                        <th>Fecha y Hora de Creación</th>
+                        <th>Fecha y Hora de Salida</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaHistorial"></tbody>
             </table>
         </section>
     </main>
@@ -104,6 +133,12 @@
         <p>&copy; 2026 HelpDesk Corp. Todos los derechos reservados. • Sistema de Gestión de Soporte Técnico</p>
     </footer>
 
+    <!-- CDN de jsPDF y jsPDF-AutoTable para generar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Carga de Módulos JavaScript -->
+    <script src="js/api.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
